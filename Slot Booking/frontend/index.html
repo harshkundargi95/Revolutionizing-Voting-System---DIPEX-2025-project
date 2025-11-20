@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slot Booking | E-Voting System</title>
+  <style>
+    :root {
+      --primary-color: #2563eb;
+      --secondary-color: #1e40af;
+      --success-color: #16a34a;
+      --error-color: #dc2626;
+      --background-color: #f0f9ff;
+      --card-color: #ffffff;
+      --text-color: #1e293b;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .header {
+      width: 100%;
+      background-color: var(--card-color);
+      padding: 1rem 0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .header h1 {
+      margin: 0;
+      color: var(--text-color);
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .voter-info {
+      margin-top: 0.5rem;
+      color: var(--primary-color);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .content-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .show-slots-btn {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: block;
+      margin: 1rem auto;
+    }
+
+    .show-slots-btn:hover {
+      background-color: var(--secondary-color);
+      transform: translateY(-2px);
+    }
+
+    .slots-container {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.5rem;
+      padding: 0.5rem;
+    }
+
+    .slot-item {
+      background-color: var(--card-color);
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s ease;
+      min-width: auto;
+      font-size: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .slot-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .slot-time {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-color);
+      margin-bottom: 0.25rem;
+      line-height: 1.2;
+    }
+
+    .slot-capacity {
+      color: #64748b;
+      font-size: 0.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .warning-message {
+      color: #ea580c;
+      font-size: 0.7rem;
+      margin: 0.25rem 0;
+      padding: 0.25rem;
+      background-color: #fff7ed;
+      border-radius: 6px;
+      border: 1px solid #fed7aa;
+    }
+
+    .loading {
+      text-align: center;
+      color: var(--primary-color);
+      font-size: 1rem;
+      margin: 2rem 0;
+      animation: fadeInOut 1.5s infinite;
+    }
+
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    button {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      font-size: 0.8rem;
+    }
+
+    button:hover {
+      background-color: var(--secondary-color);
+      transform: translateY(-2px);
+    }
+
+    button:disabled {
+      background-color: #d1d5db;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 1400px) {
+      .slots-container {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .slots-container {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .slots-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1> Slot Booking</h1>
+    <div class="voter-info">Voter ID: <span id="voterIdDisplay"></span></div>
+  </div>
+  
+  <div class="content-container">
+    <button id="availableSlotsButton" class="show-slots-btn">View Available Time Slots</button>
+    <div id="loading" class="loading" style="display: none;">Loading available slots...</div>
+    <div id="slots" class="slots-container" style="display: none;"></div>
+  </div>
+
+  <script>
+    const voterId = localStorage.getItem('voterId');
+    if (!voterId) {
+      window.location.href = 'login.html';
+    }
+    document.getElementById('voterIdDisplay').textContent = voterId;
+
+    async function fetchSlots() {
+      const loadingElement = document.getElementById('loading');
+      try {
+        loadingElement.classList.add('active');
+        console.log('Attempting to fetch slots from server...');
+        
+        const response = await fetch('http://localhost:3000/slots', {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const slots = await response.json();
+        console.log('Successfully fetched slots:', slots);
+        
+        if (!Array.isArray(slots)) {
+          throw new Error('Invalid data format received');
+        }
+        
+        return slots;
+      } catch (error) {
+        console.error('Error fetching slots:', error);
+        alert('Error loading slots. Please try again.');
+        return [];
+      } finally {
+        loadingElement.classList.remove('active');
+      }
+    }
+
+    function displaySlots(slots) {
+      const slotsContainer = document.getElementById('slots');
+      slotsContainer.innerHTML = '';
+      
+      if (!slots || slots.length === 0) {
+        slotsContainer.innerHTML = '<div class="slot-item">No slots available</div>';
+        slotsContainer.style.display = 'grid';
+        return;
+      }
+
+      slots.forEach(slot => {
+        const slotItem = document.createElement('div');
+        slotItem.className = 'slot-item';
+        const isHeavilyBooked = slot.booked >= 40 && slot.booked < 50;
+        
+        slotItem.innerHTML = `
+          <div class="slot-time">${slot.time}</div>
+          <div class="slot-capacity">${slot.booked}/50 booked</div>
+          ${isHeavilyBooked ? '<div class="warning-message">This slot is almost full! For a better voting experience, we suggest selecting an alternative time slot.</div>' : ''}
+          <button onclick="bookSlot('${slot.time}')" ${slot.booked >= 50 ? 'disabled' : ''}>
+            ${slot.booked >= 50 ? 'Full' : 'Book This Slot'}
+          </button>
+        `;
+        slotsContainer.appendChild(slotItem);
+      });
+      slotsContainer.style.display = 'grid';
+      console.log('Displayed slots:', slots.length); // Debug log
+    }
+
+    async function bookSlot(time) {
+      try {
+        console.log('Booking slot:', time); // Debug log
+        const response = await fetch('http://localhost:3000/book', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ time, voterId }),
+        });
+        if (response.ok) {
+          alert('Slot booked successfully');
+          localStorage.removeItem('voterId');
+          window.location.href = 'login.html?message=Slot booked successfully';
+        } else {
+          alert('Slot not available');
+        }
+      } catch (error) {
+        console.error('Error booking slot:', error); // Debug log
+      }
+    }
+
+    document.getElementById('availableSlotsButton').addEventListener('click', async function() {
+      console.log('Fetching slots button clicked');
+      const slots = await fetchSlots();
+      
+      if (slots && slots.length > 0) {
+        console.log('Displaying', slots.length, 'slots');
+        displaySlots(slots);
+      } else {
+        console.log('No slots received from server');
+        document.getElementById('slots').innerHTML = '<div class="slot-item">Error loading slots. Please try again.</div>';
+        document.getElementById('slots').style.display = 'grid';
+      }
+    });
+  </script>
+</body>
+</html>

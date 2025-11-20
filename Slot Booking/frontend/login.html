@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voter Login | Voting System</title>
+  <style>
+    :root {
+      --primary-color: #2563eb;
+      --secondary-color: #1e40af;
+      --success-color: #16a34a;
+      --error-color: #dc2626;
+      --background-color: #f1f5f9;
+      --card-color: #ffffff;
+      --text-color: #1e293b;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-container {
+      background-color: var(--card-color);
+      padding: 2.5rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      width: 100%;
+      max-width: 400px;
+      margin: 1rem;
+      transition: transform 0.3s ease;
+    }
+
+    .login-container:hover {
+      transform: translateY(-5px);
+    }
+
+    .login-container h1 {
+      margin: 0 0 1.5rem 0;
+      color: var(--text-color);
+      font-size: 1.8rem;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .input-container {
+      margin-bottom: 1.5rem;
+    }
+
+    .input-hint {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #f8fafc;
+      color: var(--text-color);
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      background: var(--card-color);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .button-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    button {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button[type="submit"] {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    button[type="submit"]:hover {
+      background-color: var (--secondary-color);
+    }
+
+    .check-booking-btn {
+      background-color: #64748b;
+      color: white;
+    }
+
+    .check-booking-btn:hover {
+      background-color: #475569;
+    }
+
+    .message {
+      padding: 0.75rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .message.success {
+      background-color: #f0fdf4;
+      color: var(--success-color);
+      border: 1px solid #bbf7d0;
+    }
+
+    .message.error {
+      background-color: #fef2f2;
+      color: var(--error-color);
+      border: 1px solid #fecaca;
+    }
+
+    .error-message {
+      color: var(--error-color);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 480px) {
+      .login-container {
+        padding: 1.5rem;
+      }
+
+      .button-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h1>Welcome to Slot Booking</h1>
+    <div id="message" class="message"></div>
+    <form id="loginForm">
+      <div class="input-container">
+        <span class="input-hint">Please enter your 10-digit Voter ID number</span>
+        <div class="input-group">
+          <input 
+            type="text" 
+            id="voterId" 
+            placeholder="Enter Voter ID" 
+            maxlength="10" 
+            pattern="\d{10}"
+            required
+            autocomplete="off"
+          >
+          <div id="errorMessage" class="error-message">Please enter a valid 10-digit Voter ID</div>
+        </div>
+      </div>
+      <div class="button-container">
+        <button type="submit">Login</button>
+        <button type="button" class="check-booking-btn" onclick="checkBooking()">Check Booking</button>
+      </div>
+    </form>
+  </div>
+  <script>
+    // Display message if redirected after booking a slot
+    const urlParams = new URLSearchParams(window.location.search);
+    const message = urlParams.get('message');
+    if (message) {
+      document.getElementById('message').textContent = message;
+    }
+
+    const voterIdInput = document.getElementById('voterId');
+    const errorMessage = document.getElementById('errorMessage');
+
+    voterIdInput.addEventListener('input', function(e) {
+      const value = e.target.value;
+      if (value.length > 0 && (!(/^\d+$/.test(value)) || value.length !== 10)) {
+        errorMessage.style.display = 'block';
+      } else {
+        errorMessage.style.display = 'none';
+      }
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const voterId = voterIdInput.value;
+      if (voterId.length === 10 && /^\d+$/.test(voterId)) {
+        localStorage.setItem('voterId', voterId);
+        window.location.href = 'index.html';
+      } else {
+        errorMessage.style.display = 'block';
+      }
+    });
+
+    async function checkBooking() {
+      const voterId = document.getElementById('voterId').value;
+      const messageDiv = document.getElementById('message');
+      
+      if (voterId.length === 10 && /^\d+$/.test(voterId)) {
+        try {
+          messageDiv.textContent = 'Checking booking...';
+          messageDiv.style.color = '#666';
+          
+          const response = await fetch(`http://localhost:3000/check-booking/${voterId}`, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json'
+            }
+          });
+          
+          const data = await response.json();
+          console.log('Response:', data); // Debug log
+          
+          if (data.status === 'found') {
+            messageDiv.textContent = `Your booking is confirmed for ${data.time}`;
+            messageDiv.style.color = '#16a34a';
+          } else {
+            messageDiv.textContent = 'No booking found for this Voter ID';
+            messageDiv.style.color = '#dc2626';
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          messageDiv.textContent = 'Unable to connect to server. Please try again.';
+          messageDiv.style.color = '#dc2626';
+        }
+      } else {
+        errorMessage.style.display = 'block';
+        messageDiv.textContent = '';
+      }
+    }
+  </script>
+</body>
+</html>

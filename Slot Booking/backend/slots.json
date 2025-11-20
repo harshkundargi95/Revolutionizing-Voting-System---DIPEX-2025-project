@@ -1,0 +1,78 @@
+[
+  {
+    "time": "6:00 AM",
+    "booked": 1,
+    "voters": [
+      "1234567890"
+    ]
+  },
+  {
+    "time": "7:00 AM",
+    "booked": 1,
+    "voters": [
+      "9322325362"
+    ]
+  },
+  {
+    "time": "8:00 AM",
+    "booked": 2,
+    "voters": [
+      "9322325369",
+      "9876543216"
+    ]
+  },
+  {
+    "time": "9:00 AM",
+    "booked": 0,
+    "voters": []
+  },
+  {
+    "time": "10:00 AM",
+    "booked": 1,
+    "voters": [
+      "9322325363"
+    ]
+  },
+  {
+    "time": "11:00 AM",
+    "booked": 1,
+    "voters": [
+      "1234567389"
+    ]
+  },
+  {
+    "time": "12:00 PM",
+    "booked": 0,
+    "voters": []
+  },
+  {
+    "time": "1:00 PM",
+    "booked": 1,
+    "voters": [
+      "9699204864"
+    ]
+  },
+  {
+    "time": "2:00 PM",
+    "booked": 2,
+    "voters": [
+      "3456789012",
+      "1234567892"
+    ]
+  },
+  {
+    "time": "3:00 PM",
+    "booked": 0,
+    "voters": []
+  },
+  {
+    "time": "4:00 PM",
+    "booked": 0,
+    "voters": []
+  },
+  {
+    "time": "5:00 PM",
+    "booked": 0,
+    "voters": []
+  }
+]

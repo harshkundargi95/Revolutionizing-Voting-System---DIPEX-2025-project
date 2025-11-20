@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voter Face Recognition System</title>
+    
+    <!-- CSS styles are now embedded -->
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --background-color: #ecf0f1;
+            --card-background: #ffffff;
+            --text-color: #2c3e50;
+            --success-color: #27ae60; /* Green for success */
+            --error-color: #c0392b; /* Red for error */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 1rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .tab-btn.active {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+
+        .card {
+            background: var(--card-background);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: var(--text-color);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            -moz-appearance: textfield; /* Hide number input arrows (Firefox) */
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none; /* Hide number input arrows (Chrome, Safari, Edge) */
+            margin: 0;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+
+        .camera-container {
+            width: 100%;
+            height: auto; /* Make height auto to be responsive */
+            min-height: 300px; /* Minimum height */
+            aspect-ratio: 4 / 3; /* Maintain aspect ratio */
+            background: #000; /* Black background for camera feed */
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+            border: 3px solid #e0e0e0;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Cover the container */
+        }
+
+        .primary-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .primary-btn:hover {
+            background: #2980b9; /* Darker blue on hover */
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .primary-btn:disabled {
+            background: #bdc3c7; /* Gray when disabled */
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: var(--secondary-color);
+            transition: width 0.3s ease;
+        }
+
+        .result-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            background: #f8f9fa;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.05rem;
+            /* Default text color */
+            color: var(--text-color); 
+            /* Hide if empty */
+            display: none; 
+        }
+
+        /* Show result box only when it has content */
+        .result-box:not(:empty) {
+            display: block;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 600px) {
+            .tabs {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .tab-btn {
+                width: 100%;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .camera-container {
+                min-height: 240px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="register">Registration</button>
+            <button class="tab-btn" data-tab="verify">Verification</button>
+        </nav>
+
+        <div class="tab-content active" id="register-tab">
+            <div class="card">
+                <h1>Voter Registration</h1>
+                <div class="form-group">
+                    <label for="voterId">Voter ID:</label>
+                    <input type="number" id="voterId" placeholder="Enter your voter ID">
+                </div>
+                <div class="camera-container">
+                    <!-- This video element will now be used for registration -->
+                    <video id="video" autoplay playsinline></video>
+                    <canvas id="canvas" style="display: none;"></canvas>
+                </div>
+                <button id="startRegistration" class="primary-btn">Start Registration</button>
+                <!-- Added result box for registration messages -->
+                <div id="registrationResult" class="result-box" style="margin-top: 1rem;"></div>
+                <div class="progress-bar">
+                    <div class="progress" id="registrationProgress"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="verify-tab">
+            <div class="card">
+                <h1>Voter Verification</h1>
+                <div class="form-group">
+                    <label for="verifyVoterId">Enter Voter ID:</label>
+                    <input type="number" id="verifyVoterId" placeholder="Enter your voter ID" required>
+                </div>
+                <div class="camera-container">
+                    <!-- This video element will now be used for verification -->
+                    <video id="verifyVideo" autoplay playsinline></video>
+                </div>
+                <button id="startVerification" class="primary-btn">Start Verification</button>
+                <!-- This result box will show the new verification messages -->
+                <div id="verificationResult" class="result-box"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript is now embedded -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Tab switching
+            const tabs = document.querySelectorAll('.tab-btn');
+            const contents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    contents.forEach(c => c.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+                });
+            });
+
+            // Get result elements
+            const registrationResult = document.getElementById('registrationResult');
+            const verificationResult = document.getElementById('verificationResult');
+
+            // Registration handling
+            const startRegistrationBtn = document.getElementById('startRegistration');
+            const voterIdInput = document.getElementById('voterId');
+            const registrationVideo = document.getElementById('video');
+
+            startRegistrationBtn.addEventListener('click', async () => {
+                const voterId = voterIdInput.value;
+                if (!voterId) {
+                    registrationResult.textContent = 'Please enter a valid Voter ID';
+                    registrationResult.style.color = '#c0392b';
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('voterId', voterId);
+
+                try {
+                    startRegistrationBtn.disabled = true;
+                    startRegistrationBtn.textContent = 'Processing...';
+                    registrationResult.textContent = 'Starting camera... Please wait.';
+                    registrationResult.style.color = '#2c3e50';
+
+                    // Start video stream for face capture
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    registrationVideo.srcObject = stream;
+                    
+                    // Wait for video to start playing to get correct dimensions
+                    await new Promise(resolve => {
+                        registrationVideo.onloadedmetadata = () => {
+                            registrationVideo.play();
+                            resolve();
+                        };
+                    });
+
+                    registrationResult.textContent = 'Capturing face...';
+                    
+                    // Give a moment for the camera to adjust
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+
+                    // Create canvas and capture image
+                    const canvas = document.createElement('canvas');
+                    canvas.width = registrationVideo.videoWidth;
+                    canvas.height = registrationVideo.videoHeight;
+                    canvas.getContext('2d').drawImage(registrationVideo, 0, 0);
+
+                    // Stop video stream
+                    stream.getTracks().forEach(track => track.stop());
+                    registrationVideo.srcObject = null;
+
+                    // Add captured image to form data
+                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'));
+                    formData.append('faceImage', blob);
+
+                    registrationResult.textContent = 'Registering voter...';
+
+                    const response = await fetch('/register', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    // Display message based on registration success
+                    if (response.ok && result.success) { // Assuming backend sends a success flag
+                        registrationResult.textContent = 'Voter ID registered';
+                        registrationResult.style.color = '#27ae60';
+                    } else {
+                        registrationResult.textContent = result.message || 'Registration failed.';
+                        registrationResult.style.color = '#c0392b';
+                    }
+
+                } catch (error) {
+                    registrationResult.textContent = 'Error during registration: ' + error.message;
+                    registrationResult.style.color = '#c0392b';
+                    // Ensure camera stream is stopped on error
+                    if (registrationVideo.srcObject) {
+                        registrationVideo.srcObject.getTracks().forEach(track => track.stop());
+                        registrationVideo.srcObject = null;
+                    }
+                } finally {
+                    startRegistrationBtn.disabled = false;
+                    startRegistrationBtn.textContent = 'Start Registration';
+                }
+            });
+
+            // Verification handling
+            const startVerificationBtn = document.getElementById('startVerification');
+            const verifyVoterIdInput = document.getElementById('verifyVoterId');
+            const verificationVideo = document.getElementById('verifyVideo');
+
+            startVerificationBtn.addEventListener('click', async () => {
+                const voterId = verifyVoterIdInput.value;
+                if (!voterId) {
+                    verificationResult.textContent = 'Please enter a valid Voter ID';
+                    verificationResult.style.color = '#c0392b';
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('voterId', voterId);
+
+                try {
+                    startVerificationBtn.disabled = true;
+                    startVerificationBtn.textContent = 'Verifying...';
+                    verificationResult.textContent = 'Starting camera... Please wait.';
+                    verificationResult.style.color = '#2c3e50';
+
+                    // Start video stream for face capture
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    verificationVideo.srcObject = stream;
+                    
+                    // Wait for video to start playing to get correct dimensions
+                    await new Promise(resolve => {
+                        verificationVideo.onloadedmetadata = () => {
+                            verificationVideo.play();
+                            resolve();
+                        };
+                    });
+
+                    verificationResult.textContent = 'Verifying face...';
+
+                    // Give a moment for the camera to adjust
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+
+                    // Create canvas and capture image
+                    const canvas = document.createElement('canvas');
+                    canvas.width = verificationVideo.videoWidth;
+                    canvas.height = verificationVideo.videoHeight;
+                    canvas.getContext('2d').drawImage(verificationVideo, 0, 0);
+
+                    // Stop video stream
+                    stream.getTracks().forEach(track => track.stop());
+                    verificationVideo.srcObject = null;
+
+                    // Add captured image to form data
+                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'));
+                    formData.append('faceImage', blob);
+
+                    const response = await fetch('/verify', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const errorResult = await response.json();
+                        throw new Error(errorResult.message || 'Verification failed');
+                    }
+
+                    const result = await response.json();
+
+                    // Display custom message on verification success
+                    if (result.success) {
+                        verificationResult.textContent = 'Voter ID verified. Please cast your vote.';
+                        verificationResult.style.color = '#27ae60';
+                    } else {
+                        verificationResult.textContent = result.message || 'Face verification failed. Please try again.';
+                        verificationResult.style.color = '#c0392b';
+                    }
+
+                } catch (error) {
+                    verificationResult.textContent = 'Error during verification: ' + error.message;
+                    verificationResult.style.color = '#c0392b';
+                    // Ensure camera stream is stopped on error
+                    if (verificationVideo.srcObject) {
+                        verificationVideo.srcObject.getTracks().forEach(track => track.stop());
+                        verificationVideo.srcObject = null;
+                    }
+                } finally {
+                    startVerificationBtn.disabled = false;
+                    startVerificationBtn.textContent = 'Start Verification';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
